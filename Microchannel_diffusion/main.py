@@ -23,6 +23,7 @@ def list_all_files(directory):
 
 def main():
     lengsth_pixels = np.array([814.1, 1222.194, 1627.8, 2177.831])
+    lengsth_pixels = [53.7, 80.62, 107.37, 143.656]
     folder_path = "data/Mixing/Gray_scale_data_junction"
     line_paths = list_all_files(folder_path)
     microns_per_pixel = 0.55
@@ -31,7 +32,7 @@ def main():
     x_list = []
     Diffusion_constants = []
 
-    for path, lengths in zip(line_paths, lengsth_pixels):
+    for path, length in zip(line_paths, lengsth_pixels):
         data = pd.read_csv(path)
 
         xs = data['Distance_(pixels)']
@@ -45,7 +46,7 @@ def main():
         c_prop = np.log(initial/intensity)
         c_prop = c_prop/min(c_prop)  # Noramlisation 
 
-        length = lengths*microns_per_pixel
+        print(length)
         t = Δt(length)
         def analytical(x,D,c0):
             return -c0*0.5*(1-erf((x)/(np.sqrt(4*D*t)))) + 1
@@ -70,6 +71,7 @@ def main():
 
     plt.legend(loc =  'upper left')                
     plt.show()
+    print("avrage D = ",np.mean(Diffusion_constants) , " std = ", np.std(Diffusion_constants))
 
 if __name__ == "__main__":
     main()
