@@ -9,7 +9,7 @@ from scipy.optimize import curve_fit
 def Δt(l):
     hight_of_channel = 75 #micrometers
     width_of_channel = 500 #micrometers
-    flow_rate = 80e9/60 # um^3/sek
+    flow_rate = 40e9/60 # um^3/sek
 
     return l * hight_of_channel*width_of_channel/flow_rate
 
@@ -22,11 +22,9 @@ def list_all_files(directory):
 
 
 def main():
-    lengsth_pixels = np.array([814.1, 1222.194, 1627.8, 2177.831])
-    lengsth_pixels = [53.7, 80.62, 107.37, 143.656]
+    lengsth_pixels = np.array([845.6, 917.812, 959.699, 1022.984]) #This is in mu meters from the software
     folder_path = "data/Mixing/Gray_scale_data_junction"
     line_paths = list_all_files(folder_path)
-    microns_per_pixel = 0.55
     
     result_array = []
     x_list = []
@@ -35,28 +33,29 @@ def main():
     for path, length in zip(line_paths, lengsth_pixels):
         data = pd.read_csv(path)
 
-        xs = data['Distance_(pixels)']
-        xs = xs/max(xs)                 #Noramlisation
+        xs = data['Distance_(unit)']
+        max_x = max(xs)
+        xs = xs/max_x                 #Noramlisation
         mean = xs[xs.size -1 ]/2
         xs = xs - mean
         x_list.append(xs)
         
         intensity = data['Gray_Value']
         initial = intensity[0]
-        c_prop = np.log(initial/intensity)
-        c_prop = c_prop/min(c_prop)  # Noramlisation 
+        c_prop = -np.log(initial/intensity)
+        c_prop -= np.mean(c_prop[(max(c_prop.index) -1)*0.2 > c_prop.index])
+        c_prop = c_prop/np.mean(c_prop[(max(c_prop.index) -1)*0.8 < c_prop.index])  # Noramlisation 
 
-        print(length)
         t = Δt(length)
-        def analytical(x,D,c0):
-            return -c0*0.5*(1-erf((x)/(np.sqrt(4*D*t)))) + 1
+        def analytical(x,D,):
+            return -0.5*(1-erf((x)/(np.sqrt(4*D*t)))) + 1
         
         param, param_cov = curve_fit(analytical , xs, c_prop)
-        D, c0 = param
+        D = param[0]
         
-        Diffusion_constants.append(D)
+        Diffusion_constants.append(D*max_x**2)
 
-        ans = analytical(xs, D, c0)
+        ans = analytical(xs, D)
         result_array.append(ans)
 
         plt.scatter(xs,c_prop)
@@ -72,6 +71,13 @@ def main():
     plt.legend(loc =  'upper left')                
     plt.show()
     print("avrage D = ",np.mean(Diffusion_constants) , " std = ", np.std(Diffusion_constants))
+    k_b = 1.3806503 * 10**(-23)
+    nu = 1.002 * 10**(-3)              # Pas at 20*C
+    T = 20+273
+    radius_func = lambda d: k_b*T/(6*np.pi*nu*(d*10**(-12)))
+    Diffusion_constants = np.array(Diffusion_constants)
+    radius = radius_func(Diffusion_constants)
+    print(f"radius:{radius}")
 
 if __name__ == "__main__":
     main()
