@@ -60,6 +60,7 @@ def main():
 
         plt.scatter(xs,c_prop)
         plt.plot(xs,ans, color="r")
+        plt.savefig(f"./Microchannel_diffusion/Plots/plot_{path.split("/")[-1].split("\\")[-1].split(".")[0]}.jpg")
         plt.show()
     
 
@@ -69,15 +70,21 @@ def main():
         plt.plot(x, results, label=f'D = {round(D,5)}') 
 
     plt.legend(loc =  'upper left')                
+    plt.savefig("./Microchannel_diffusion/Plots/ALL_D.jpg")
     plt.show()
-    print("avrage D = ",np.mean(Diffusion_constants) , " std = ", np.std(Diffusion_constants))
+    print("Diffusion constant: ")
+    print(Diffusion_constants)
+    print("Mean D = ",np.mean(Diffusion_constants) , " std = ", np.std(Diffusion_constants))
     k_b = 1.3806503 * 10**(-23)
     nu = 1.002 * 10**(-3)              # Pas at 20*C
     T = 20+273
     radius_func = lambda d: k_b*T/(6*np.pi*nu*(d*10**(-12)))
     Diffusion_constants = np.array(Diffusion_constants)
     radius = radius_func(Diffusion_constants)
-    print(f"radius:{radius}")
+    print("Hydrodynamic radius: ")
+    print(radius)
+    print("Mean R = ", np.mean(radius), "std = ", np.std(radius))
+    
 
 if __name__ == "__main__":
     main()
