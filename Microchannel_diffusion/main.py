@@ -75,7 +75,7 @@ def main():
     print("Diffusion constant: ")
     print(Diffusion_constants)
     Diffusion_constants = np.array(Diffusion_constants)
-    print("Mean D = ",np.mean(Diffusion_constants) , "+-: ",np.sqrt(max((np.mean(Diffusion_constants)-Diffusion_constants)**2)))
+    print("Mean D = ",np.mean(Diffusion_constants) , "std = ",np.std(Diffusion_constants))
     k_b = 1.3806503 * 10**(-23)
     nu = 1.002 * 10**(-3)              # Pas at 20*C
     T = 20+273
@@ -83,7 +83,7 @@ def main():
     radius = np.array(radius_func(Diffusion_constants))
     print("Hydrodynamic radius: ")
     print(radius)
-    print("Mean R = ", np.mean(radius), "+-: ", np.sqrt(max((np.mean(radius)-radius)**2)))
+    print("Mean R = ", np.mean(radius), "std = ", np.std(radius))
     
 
 if __name__ == "__main__":
